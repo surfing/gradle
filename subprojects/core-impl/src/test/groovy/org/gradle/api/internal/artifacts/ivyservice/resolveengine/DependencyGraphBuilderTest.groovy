@@ -96,11 +96,11 @@ class DependencyGraphBuilderTest extends Specification {
         resolve()
 
         then:
-        1 * listener.start(newId("group", "root", "1.0"))
-        then:
         1 * listener.resolvedConfiguration({ it.name == 'root' }, { it*.requested.name == ['a', 'b'] })
         then:
         1 * listener.resolvedConfiguration({ it.name == 'a' }, { it*.requested.name == ['c', 'd'] && it*.failure.count { it != null } == 1 })
+        then:
+        1 * listener.done(newId("group", "root", "1.0"))
     }
 
     def "does not resolve a given dynamic module selector more than once"() {

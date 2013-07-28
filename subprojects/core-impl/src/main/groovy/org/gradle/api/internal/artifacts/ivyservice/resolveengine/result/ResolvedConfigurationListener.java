@@ -23,7 +23,7 @@ import java.util.Collection;
 
 //listens to result events tailored for the new dependency graph model, TODO SF rename job needed
 public interface ResolvedConfigurationListener {
-    ResolvedConfigurationListener start(ModuleVersionIdentifier root);
+    ResolvedConfigurationListener done(ModuleVersionIdentifier root);
     void resolvedModuleVersion(ModuleVersionSelection moduleVersion);
     void resolvedConfiguration(ModuleVersionIdentifier id, Collection<? extends InternalDependencyResult> dependencies);
     ResolutionResult getResult();

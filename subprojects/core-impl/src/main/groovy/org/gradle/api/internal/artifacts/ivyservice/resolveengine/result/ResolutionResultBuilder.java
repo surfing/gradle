@@ -35,7 +35,7 @@ public class ResolutionResultBuilder implements ResolvedConfigurationListener {
 
     CachingDependencyResultFactory dependencyResultFactory = new CachingDependencyResultFactory();
 
-    public ResolutionResultBuilder start(ModuleVersionIdentifier root) {
+    public ResolutionResultBuilder done(ModuleVersionIdentifier root) {
         rootModule = createOrGet(root, VersionSelectionReasons.ROOT);
         return this;
     }

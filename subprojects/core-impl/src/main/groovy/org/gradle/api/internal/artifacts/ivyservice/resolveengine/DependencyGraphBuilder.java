@@ -147,9 +147,6 @@ public class DependencyGraphBuilder {
      */
     private void assembleResult(ResolveState resolveState, ResolvedConfigurationBuilder result, ResolvedConfigurationListener listener) {
         FailureState failureState = new FailureState(resolveState.root);
-        ModuleVersionIdentifier root = resolveState.root.toId();
-        listener.start(root);
-
         for (ConfigurationNode resolvedConfiguration : resolveState.getConfigurationNodes()) {
             if (resolvedConfiguration.isSelected()) {
                 resolvedConfiguration.attachToParents(result);
@@ -163,6 +160,7 @@ public class DependencyGraphBuilder {
             }
         }
         failureState.attachFailures(result);
+        listener.done(resolveState.root.toId());
         result.done(resolveState.root.getResult());
     }
 
@@ -429,6 +427,7 @@ public class DependencyGraphBuilder {
             rootVersion.setResolveResult(rootResult);
             root = getConfigurationNode(rootVersion, rootConfigurationName);
             root.moduleRevision.module.select(root.moduleRevision);
+            root.moduleRevision.selectionReason = VersionSelectionReasons.ROOT;
         }
 
         public ModuleResolveState getModule(ModuleIdentifier id) {
