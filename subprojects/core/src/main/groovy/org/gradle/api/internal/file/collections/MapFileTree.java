@@ -16,14 +16,17 @@
 package org.gradle.api.internal.file.collections;
 
 import groovy.lang.Closure;
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
 import org.gradle.internal.Factory;
+import org.gradle.internal.nativeplatform.filesystem.FileSystems;
 import org.gradle.api.internal.file.AbstractFileTreeElement;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -158,5 +161,14 @@ public class MapFileTree implements MinimalFileTree, FileSystemMirroringFileTree
         public RelativePath getRelativePath() {
             return path;
         }
+
+        public boolean isSymbolicLink() {
+            try {
+                return FileSystems.getDefault().isSymbolicLink(getFile());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
     }
 }

@@ -68,4 +68,12 @@ public class DefaultFileTreeElement extends AbstractFileTreeElement {
             throw new UncheckedIOException(e);
         }
     }
+
+    public boolean isSymbolicLink() {
+        try {
+            return FileSystems.getDefault().isSymbolicLink(file);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

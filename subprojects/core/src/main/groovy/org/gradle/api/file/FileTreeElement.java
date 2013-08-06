@@ -105,4 +105,10 @@ public interface FileTreeElement {
      * @return The Unix file permissions.
      */
     int getMode();
+    /**
+     * Returns whether this element represents a symbolic link.
+     *
+     * @return true if it is an symbolic link, false otherwise.
+     */
+    boolean isSymbolicLink();
 }

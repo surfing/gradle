@@ -158,6 +158,11 @@ public class TarFileTree implements MinimalFileTree, FileSystemMirroringFileTree
         public int getMode() {
             return entry.getMode() & 0777;
         }
+
+        public boolean isSymbolicLink() {
+            return entry.isSymbolicLink();
+        }
+
     }
 
     private static class NoCloseTarInputStream extends TarInputStream {

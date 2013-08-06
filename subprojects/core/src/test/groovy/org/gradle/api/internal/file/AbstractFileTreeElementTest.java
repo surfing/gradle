@@ -143,5 +143,9 @@ public class AbstractFileTreeElementTest {
         public int getMode() {
             return mode == null ? super.getMode() : mode;
         }
+
+        public boolean isSymbolicLink() {
+            return false;
+        }
     }
 }

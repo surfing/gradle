@@ -141,6 +141,10 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
         return fileDetails.getMode();
     }
 
+    public boolean isSymbolicLink() {
+        return fileDetails.isSymbolicLink();
+    }
+
     private Integer getSpecMode() {
         return fileDetails.isDirectory() ? spec.getDirMode() : spec.getFileMode();
     }

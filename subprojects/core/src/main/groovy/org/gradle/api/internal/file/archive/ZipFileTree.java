@@ -163,5 +163,9 @@ public class ZipFileTree implements MinimalFileTree, FileSystemMirroringFileTree
             }
             return unixMode;
         }
+
+        public boolean isSymbolicLink() {
+            return false;
+        }
     }
 }

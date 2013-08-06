@@ -116,6 +116,10 @@ public class NormalizingCopyActionDecorator implements CopyAction {
             return path.toString();
         }
 
+        public boolean isSymbolicLink() {
+            throw new UnsupportedOperationException();
+        }
+
         public File getFile() {
             throw new UnsupportedOperationException();
         }
