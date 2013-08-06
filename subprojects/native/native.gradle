@@ -15,6 +15,7 @@ dependencies {
     }
     compile libraries.guava
     compile libraries.jcip
+    compile libraries.ant
     testCompile libraries.groovy
 }
 

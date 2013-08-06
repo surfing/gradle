@@ -17,6 +17,7 @@
 package org.gradle.internal.nativeplatform.filesystem;
 
 import com.sun.jna.LastErrorException;
+import org.apache.tools.ant.util.SymbolicLinkUtils;
 import org.gradle.internal.nativeplatform.jna.LibC;
 
 import java.io.File;
@@ -24,9 +25,11 @@ import java.io.IOException;
 
 public class LibcSymlink implements Symlink {
     private final LibC libC;
+    private SymbolicLinkUtils symUtil;
 
     public LibcSymlink(LibC libC) {
         this.libC = libC;
+        this.symUtil = SymbolicLinkUtils.getSymbolicLinkUtils();
     }
 
     public void symlink(File link, File target) throws IOException {
@@ -36,5 +39,16 @@ public class LibcSymlink implements Symlink {
         } catch (LastErrorException e) {
             throw new IOException(String.format("Could not create symlink from '%s' to '%s'. Errno is %s.", link.getPath(), target.getPath(), e.getErrorCode()));
         }
+    }
+
+    public boolean isSymlink(File linkCandidate) throws IOException {
+        return symUtil.isSymbolicLink(linkCandidate) || symUtil.isDanglingSymbolicLink(linkCandidate);
+    }
+
+    public String symlinkTarget(File link) throws IOException {
+        if(!isSymlink(link)) {
+            return null;
+        }
+        return link.getCanonicalFile().getName();
     }
 }

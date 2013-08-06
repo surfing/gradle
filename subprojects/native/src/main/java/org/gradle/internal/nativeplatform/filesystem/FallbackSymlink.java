@@ -23,4 +23,10 @@ public class FallbackSymlink implements Symlink {
     public void symlink(File link, File target) throws IOException {
         throw new IOException("Creation of symlinks is not supported on the platform.");
     }
+    public boolean isSymlink(File linkCandidate) throws IOException {
+        return false;
+    }
+    public String symlinkTarget(File link) throws IOException {
+        return null;
+    }
 }

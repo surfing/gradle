@@ -57,6 +57,14 @@ class GenericFileSystem implements FileSystem {
         }
     }
 
+    public boolean isSymbolicLink(File linkCandidate) throws IOException {
+        return symlink.isSymlink(linkCandidate);
+    }
+
+    public String getSymbolicLinkTarget(File link) throws IOException {
+        return symlink.symlinkTarget(link);
+    }
+
     public int getUnixMode(File f) throws IOException {
         assertFileExists(f);
         return stat.getUnixMode(f);

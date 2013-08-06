@@ -67,6 +67,23 @@ public interface FileSystem extends Chmod {
     boolean tryCreateSymbolicLink(File link, File target);
 
     /**
+     * Tests whether the file represents a symbolic link.
+     *
+     * @param linkCandidate the file to test
+     * @return <tt>true</tt> if the file is a symbolic link, <tt>false</tt> otherwise
+     */
+    public boolean isSymbolicLink(File linkCandidate) throws IOException;
+
+    /**
+     * Reads the target of a symbolic link file.
+     *
+     * @param link the link to read
+     * @exception java.io.IOException if the operation fails
+     * @return the link target if the file file is a symbolic link, null otherwise
+     */
+    public String getSymbolicLinkTarget(File link) throws IOException;
+
+    /**
      * Returns the Unix permissions for a provided file. Some file systems may not
      * support Unix permissions, in which case sensible default values are returned
      * instead.

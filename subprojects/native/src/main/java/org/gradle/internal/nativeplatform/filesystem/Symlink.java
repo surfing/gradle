@@ -21,4 +21,6 @@ import java.io.IOException;
 
 public interface Symlink {
     void symlink(File link, File target) throws IOException;
+    boolean isSymlink(File linkCandidate) throws IOException;
+    String symlinkTarget(File link) throws IOException;
 }
