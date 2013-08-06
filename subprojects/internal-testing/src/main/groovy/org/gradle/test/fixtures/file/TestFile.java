@@ -24,6 +24,7 @@ import org.apache.tools.ant.taskdefs.Tar;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.apache.tools.ant.types.EnumeratedAttribute;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.gradle.internal.nativeplatform.filesystem.FileSystems;
 import org.hamcrest.Matcher;
 
 import java.io.*;
@@ -91,6 +92,18 @@ public class TestFile extends File {
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format("Could not locate file '%s' relative to '%s'.", Arrays.toString(path), this), e);
         }
+    }
+
+    public TestFile symboliclink(String link, String target) {
+        try {
+            if(FileSystems.getDefault().tryCreateSymbolicLink(new File(this, link), new File(target))) {
+                TestFile result = new TestFile(this, link);
+                return result;
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(String.format("Could not create symbolic link '%s' relative to '%s'.", link, this), e);
+        }
+        return null;
     }
 
     public List<TestFile> files(Object... paths) {

@@ -32,6 +32,12 @@ class TarTestFixture extends ArchiveTestFixture {
                 if (tarEntry.directory) {
                     continue
                 }
+                if (tarEntry.symbolicLink) {
+                    addSymbolicLink(tarEntry.name, tarEntry.linkName);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream()
+                    tarInputStream.copyEntryContents(stream)
+                    continue
+                }
                 ByteArrayOutputStream stream = new ByteArrayOutputStream()
                 tarInputStream.copyEntryContents(stream)
                 add(tarEntry.name, new String(stream.toByteArray(), "utf-8"))

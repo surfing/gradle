@@ -26,8 +26,11 @@ import org.gradle.api.internal.file.archive.compression.GzipArchiver;
 import org.gradle.api.internal.file.archive.compression.SimpleCompressor;
 import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
+import org.gradle.internal.nativeplatform.filesystem.FileSystems;
 import org.gradle.test.fixtures.file.TestFile;
 import org.gradle.test.fixtures.file.TestNameTestDirectoryProvider;
+import org.gradle.util.Requires;
+import org.gradle.util.TestPrecondition;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
@@ -37,6 +40,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,6 +137,18 @@ public class TarCopyActionTest {
         }
     }
 
+    @Test
+    @Requires(TestPrecondition.SYMLINKS)
+    public void tarWithSymbolicLinkToFile() throws IOException {
+        final TestFile tarFile = initializeTarFile(tmpDir.getTestDirectory().file("test.tar"),
+                new SimpleCompressor());
+        tar(file("dir/target.txt"), symlink("dir/link.txt", "target.txt"));
+
+        TestFile expandDir = tmpDir.getTestDirectory().file("expanded");
+        tarFile.usingNativeTools().untarTo(expandDir);
+        assertThat(FileSystems.getDefault().isSymbolicLink(new File(expandDir, "dir/link.txt")), equalTo(true));
+    }
+
     private TestFile initializeTarFile(final TestFile tarFile, final ArchiveOutputStreamFactory compressor) {
         action = new TarCopyAction(tarFile, compressor);
         return tarFile;
@@ -171,6 +188,9 @@ public class TarCopyActionTest {
             allowing(details).getMode();
             will(returnValue(1));
 
+            allowing(details).isSymbolicLink();
+            will(returnValue(false));
+
             allowing(details).copyTo(with(notNullValue(OutputStream.class)));
             will(new org.jmock.api.Action() {
                 public void describeTo(Description description) {
@@ -202,11 +222,43 @@ public class TarCopyActionTest {
 
             allowing(details).getMode();
             will(returnValue(2));
+
+            allowing(details).isSymbolicLink();
+            will(returnValue(false));
         }});
 
         return details;
     }
 
+    private FileCopyDetailsInternal symlink(final String path, final String target) throws IOException {
+        final FileCopyDetailsInternal details = context.mock(FileCopyDetailsInternal.class, path);
+        final File symlink = new File(tmpDir.getTestDirectory(), path);
+        FileSystems.getDefault().createSymbolicLink(symlink, new File(target));
+        context.checking(new Expectations() {{
+            allowing(details).getRelativePath();
+            will(returnValue(RelativePath.parse(true, path)));
+
+            allowing(details).getLastModified();
+            will(returnValue(1000L));
+
+            allowing(details).getSize();
+            will(returnValue(0l));
+
+            allowing(details).isDirectory();
+            will(returnValue(false));
+
+            allowing(details).getMode();
+            will(returnValue(1));
+
+            allowing(details).isSymbolicLink();
+            will(returnValue(true));
+
+            allowing(details).getFile();
+            will(returnValue(symlink));
+        }});
+
+        return details;
+    }
     private FileCopyDetailsInternal brokenFile(final String path, final Throwable failure) {
         final FileCopyDetailsInternal details = context.mock(FileCopyDetailsInternal.class, String.format("[%s]", path));
 
@@ -225,6 +277,9 @@ public class TarCopyActionTest {
 
             allowing(details).getMode();
             will(returnValue(1));
+
+            allowing(details).isSymbolicLink();
+            will(returnValue(false));
 
             allowing(details).copyTo(with(notNullValue(OutputStream.class)));
             will(new org.jmock.api.Action() {

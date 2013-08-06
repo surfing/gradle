@@ -39,6 +39,11 @@ class TestWorkspaceBuilder {
         file
     }
 
+    def symboliclink(String link, String target) {
+        TestFile file = baseDir.symboliclink(link, target)
+        file
+    }
+
     def setMode(int mode) {
         baseDir.mode = mode
     }

@@ -27,13 +27,23 @@ import static org.junit.Assert.assertEquals
 
 class ArchiveTestFixture {
     private final ListMultimap<String, String> filesByRelativePath = ArrayListMultimap.create()
+    def symbolicLinksByRelativePath = [:]
 
     protected void add(String relativePath, String content) {
         filesByRelativePath.put(relativePath, content)
     }
 
+    protected void addSymbolicLink(String relativePath, String target) {
+        symbolicLinksByRelativePath.put(relativePath, target)
+    }
+
     def assertContainsFile(String relativePath, int occurrences = 1) {
         assertEquals(occurrences, filesByRelativePath.get(relativePath).size())
+        this
+    }
+
+    def assertContainsSymbolicLink(String relativePath, String target) {
+        assertEquals(target, symbolicLinksByRelativePath.get(relativePath))
         this
     }
 

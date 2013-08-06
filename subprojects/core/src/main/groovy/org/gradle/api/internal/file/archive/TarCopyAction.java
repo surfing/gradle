@@ -28,6 +28,7 @@ import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.internal.tasks.SimpleWorkResult;
 import org.gradle.api.tasks.WorkResult;
+import org.gradle.internal.nativeplatform.filesystem.FileSystems;
 import org.gradle.internal.UncheckedException;
 
 import java.io.File;
@@ -89,12 +90,21 @@ public class TarCopyAction implements CopyAction {
 
         private void visitFile(FileCopyDetails fileDetails) {
             try {
-                TarEntry archiveEntry = new TarEntry(fileDetails.getRelativePath().getPathString());
-                archiveEntry.setModTime(fileDetails.getLastModified());
-                archiveEntry.setSize(fileDetails.getSize());
-                archiveEntry.setMode(UnixStat.FILE_FLAG | fileDetails.getMode());
-                tarOutStr.putNextEntry(archiveEntry);
-                fileDetails.copyTo(tarOutStr);
+                if(fileDetails.isSymbolicLink()) {
+                    TarEntry archiveEntry = new TarEntry(fileDetails.getRelativePath().getPathString(), TarEntry.LF_SYMLINK);
+                    archiveEntry.setModTime(fileDetails.getLastModified());
+                    archiveEntry.setSize(0);
+                    archiveEntry.setMode(UnixStat.FILE_FLAG | fileDetails.getMode());
+                    archiveEntry.setLinkName(FileSystems.getDefault().getSymbolicLinkTarget(fileDetails.getFile()));
+                    tarOutStr.putNextEntry(archiveEntry);
+                } else {
+                    TarEntry archiveEntry = new TarEntry(fileDetails.getRelativePath().getPathString());
+                    archiveEntry.setModTime(fileDetails.getLastModified());
+                    archiveEntry.setSize(fileDetails.getSize());
+                    archiveEntry.setMode(UnixStat.FILE_FLAG | fileDetails.getMode());
+                    tarOutStr.putNextEntry(archiveEntry);
+                    fileDetails.copyTo(tarOutStr);
+                }
                 tarOutStr.closeEntry();
             } catch (Exception e) {
                 throw new GradleException(String.format("Could not add %s to TAR '%s'.", fileDetails, tarFile), e);

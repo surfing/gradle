@@ -638,6 +638,26 @@ public class ArchiveIntegrationTest extends AbstractIntegrationSpec {
         tar.content("file1.txt") == "dir1/file1.txt"
     }
 
+    def tarCanHandleSymbolicLinks() {
+        given:
+        createDir('dir1', {
+            file 'target.txt'
+            symboliclink 'link.txt', 'target.txt'
+        })
+
+        buildFile << '''
+            task tar(type: Tar) {
+                from 'dir1'
+                destinationDir = buildDir
+                archiveName = 'test.tar'            }
+'''
+        when:
+        run 'tar'
+        then:
+        def tar = new TarTestFixture(file("build/test.tar"))
+        tar.assertContainsFile('target.txt')
+        tar.assertContainsSymbolicLink('link.txt', 'target.txt')
+    }
     private def createTar(String name, Closure cl) {
         TestFile tarRoot = file("${name}.root")
         TestFile tar = file(name)
